@@ -100,13 +100,26 @@ class MyApp extends StatelessWidget {
   ''';
     List<dynamic> combattants = jsonDecode(combatantsJson);
     return Scaffold(
+     
       appBar: AppBar(
+        
         title: Center(
           child: Text("Uber Bagarre"),
         ),
+
+      ),
+
+      bottomNavigationBar: BottomAppBar(
+        shadowColor: Color.fromARGB(255, 0, 0, 0),
+        color: const Color.fromARGB(255, 252, 252, 252),
+        
+        child: Text("ahhh"),
+        
       ),
       body: Center(
+        
         child: Column(
+          
           crossAxisAlignment: CrossAxisAlignment.center,
           spacing: 30,
           children: [
