@@ -51,9 +51,9 @@ class MyApp extends StatelessWidget {
                 if (fighter.hasError) {
                   return Center(
                       child: Text(
-                          'Error: ${fighter.error} veuiller contacter le support '));
+                          'Error: veuiller contacter le support '));
                 } else {
-                  // return Center(child: new Text('${fighter.data}'));
+             
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 30,
@@ -61,12 +61,13 @@ class MyApp extends StatelessWidget {
                       for (var bagareuer in fighter.data!)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          
                           spacing: 15,
                           children: [
                             CircleAvatar(
                               backgroundImage:
                                   NetworkImage("${bagareuer['picture']['medium']}"),
-                              //backgroundImage: NetworkImage("https://randomuser.me/api/portraits/med/men/41.jpg"),
+                       
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
