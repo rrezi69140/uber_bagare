@@ -10,15 +10,15 @@ void main() {
   ));
 }
 
-Future<List<dynamic>> _getProfilePIctures() async {
+Future<List<dynamic>> getProfilePIctures() async {
   // Construction de l'URL a appeler
-  var url = Uri.parse("https://randomuser.me/api/?inc=picture&results=8");
+  var url = Uri.parse("https://randomuser.me/api/?results=8");
   // Appel
   var response = await http.get(url);
   if (response.statusCode == 200) {
     var data = jsonDecode(response.body);
-    List<dynamic> combattants = data['results'];
-    return combattants;
+
+    return data['results'];
   } else {
     return [];
   }
@@ -29,122 +29,61 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //var profilePicture = _getProfilePIctures();
-    var combatantsJson = '''
-  [
-    {
-      "nom": "John Fury",
-      "victoires": 22,
-      "defaites": 3,
-      "ko": 18,
-      "distance_km": 5.4,
-      "image": "https://randomuser.me/api/portraits/med/men/34.jpg"
-    },
-    {
-      "nom": "Alex Thunder",
-      "victoires": 18,
-      "defaites": 5,
-      "ko": 12,
-      "distance_km": 10.2,
-      "image": "https://randomuser.me/api/portraits/med/men/35.jpg"
-    },
-    {
-      "nom": "Mike Storm",
-      "victoires": 30,
-      "defaites": 2,
-      "ko": 25,
-      "distance_km": 8.7,
-      "image": "https://randomuser.me/api/portraits/med/men/36.jpg"
-    },
-    {
-      "nom": "Victor Blaze",
-      "victoires": 15,
-      "defaites": 7,
-      "ko": 10,
-      "distance_km": 3.6,
-      "image": "https://randomuser.me/api/portraits/med/men/37.jpg"
-    },
-    {
-      "nom": "Leo Dragon",
-      "victoires": 27,
-      "defaites": 4,
-      "ko": 21,
-      "distance_km": 12.3,
-      "image": "https://randomuser.me/api/portraits/med/men/38.jpg"
-    },
-    {
-      "nom": "Jake Iron",
-      "victoires": 10,
-      "defaites": 9,
-      "ko": 6,
-      "distance_km": 6.9,
-     "image": "https://randomuser.me/api/portraits/med/men/39.jpg"
-    },
-    {
-      "nom": "Bruce Titan",
-      "victoires": 35,
-      "defaites": 1,
-      "ko": 28,
-      "distance_km": 14.5,
-      "image": "https://randomuser.me/api/portraits/med/men/40.jpg"
-    },
-    {
-      "nom": "Rex Shadow",
-      "victoires": 19,
-      "defaites": 6,
-      "ko": 14,
-      "distance_km": 7.1,
-      "image": "https://randomuser.me/api/portraits/med/men/41.jpg"
-    }
-  ]
-  ''';
-    List<dynamic> combattants = jsonDecode(combatantsJson);
     return Scaffold(
-     
       appBar: AppBar(
-        
         title: Center(
           child: Text("Uber Bagarre"),
         ),
-
       ),
-
       bottomNavigationBar: BottomAppBar(
         shadowColor: Color.fromARGB(255, 0, 0, 0),
         color: const Color.fromARGB(255, 252, 252, 252),
-        
         child: Text("ahhh"),
-        
       ),
       body: Center(
-        
-        child: Column(
-          
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 30,
-          children: [
-            for (var Bagareuer in combattants)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 15,
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage("${Bagareuer['image']}"),
-                    //backgroundImage: NetworkImage("https://randomuser.me/api/portraits/med/men/41.jpg"),
-                  ),
-                  Column(
+        child: FutureBuilder(
+            future: getProfilePIctures(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<dynamic>> fighter) {
+              if (fighter.connectionState == ConnectionState.waiting) {
+                return Center(child: Text('Please wait its loading...'));
+              } else {
+                if (fighter.hasError) {
+                  return Center(
+                      child: Text(
+                          'Error: ${fighter.error} veuiller contacter le support '));
+                } else {
+                  // return Center(child: new Text('${fighter.data}'));
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 30,
                     children: [
-                      Text(" nom : ${Bagareuer['nom']}  "),
-                      Text(
-                          "${Bagareuer['victoires']} victoire -${Bagareuer['defaites']} defaite -${Bagareuer['ko']} ko")
+                      for (var bagareuer in fighter.data!)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 15,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage("${bagareuer['picture']['medium']}"),
+                              //backgroundImage: NetworkImage("https://randomuser.me/api/portraits/med/men/41.jpg"),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(" nom : ${bagareuer['name']['first']}  ${bagareuer['name']['last']}   "),
+                                Text(
+                                    "${bagareuer['dob']['age']/2.toInt()} victoire -- ${bagareuer['dob']['age']%2.toInt()} defaite -- ${bagareuer['dob']['age']/10.toInt()} KO")
+                              ],
+                            ),
+                            Text("${bagareuer['dob']['age']} km")
+                          ],
+                        ),
                     ],
-                  ),
-                  Text("${Bagareuer['distance_km']}")
-                ],
-              ),
-          ],
-        ),
+                  );
+                }
+              }
+            }),
       ),
     );
   }
