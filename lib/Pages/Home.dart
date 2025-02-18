@@ -55,7 +55,7 @@ class Home extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return const FighterPage(title: 'SecondPage');
+                              return  FighterPage(user: bagareuer);
                             }));
                           },
                           child: Row(
