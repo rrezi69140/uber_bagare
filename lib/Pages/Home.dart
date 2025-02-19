@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:http/http.dart' as http;
-import 'package:uber_bagare/Pages/FighterProfile.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:uber_bagare/Pages/FighterProfile.dart';
 
 Future<geolocator.Position> _determinePosition() async {
   bool serviceEnabled;
@@ -41,6 +42,7 @@ Future<geolocator.Position> _determinePosition() async {
   // continue accessing the position of the device.
   return await geolocator.Geolocator.getCurrentPosition();
 }
+
 Future<List<dynamic>> getProfilePIctures() async {
   // Construction de l'URL a appeler
   var url = Uri.parse(
@@ -55,18 +57,14 @@ Future<List<dynamic>> getProfilePIctures() async {
     return [];
   }
 }
-Future<geolocator.Position> positionActuelle = _determinePosition()  ;
+
 class Home extends StatelessWidget {
   Home({super.key});
-  mapbox.CameraOptions camera = mapbox.CameraOptions(
-      //center: Point(coordinates: Position(-98.0, 39.5)),
-      zoom: 2,
-      bearing: 0,
-      pitch: 0);
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
@@ -79,6 +77,11 @@ class Home extends StatelessWidget {
                 Tab(
                     icon: Icon(
                   Icons.map_outlined,
+                  size: 50,
+                )),
+                Tab(
+                    icon: Icon(
+                  Icons.terminal_sharp,
                   size: 50,
                 ))
               ],
@@ -128,7 +131,8 @@ class Home extends StatelessWidget {
                                             CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                              " nom : ${bagareuer['name']['first']}  ${bagareuer['name']['last']}   "), // crée des valeur fictive
+                                              " nom : ${bagareuer['name']['first']}  ${bagareuer['name']['last']}   "),
+                                          // crée des valeur fictive
                                           Text(
                                               "${bagareuer['dob']['age'] / 2.toInt()} victoire -- ${bagareuer['dob']['age'] % 2.toInt()} defaite -- ${bagareuer['dob']['age'] / 10.toInt()} KO")
                                         ],
@@ -144,14 +148,37 @@ class Home extends StatelessWidget {
                     }),
               ),
               Center(
-                child: mapbox.MapWidget(cameraOptions: camera),
+                child: FutureBuilder<geolocator.Position>(
+                  future: _determinePosition(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: Text('Please wait its loading...'));
+                    } else {
+                      //print(snapchot).data;
+                      if (snapshot.hasError) {
+                        return Center(
+                            child:
+                                Text('Error: veuiller contacter le support '));
+                      } else {
+                        var position = snapshot.data!;
+                        mapbox.CameraOptions camera = mapbox.CameraOptions(
+                            center: mapbox.Point(
+                              coordinates: mapbox.Position(
+                                position.longitude,
+                                position.latitude,
+                              ),
+                            ),
+                            zoom: 10,
+                            bearing: 0,
+                            pitch: 0);
+                        return mapbox.MapWidget(cameraOptions: camera);
+                      }
+                    }
+                  },
+                ),
+              )
 
-              ),
               //Center(child: Text("${positionActuelle.longitude} km"))
-
-             
-             
-
             ],
           ),
         ));
