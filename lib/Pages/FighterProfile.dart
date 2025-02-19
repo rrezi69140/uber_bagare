@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:uber_bagare/Pages/Home.dart';
 import 'package:http/http.dart' as http;
-import 'package:fl_chart/fl_chart.dart';
+
 
 class FighterPage extends StatelessWidget {
   const FighterPage({Key? key, required this.user}) : super(key: key);

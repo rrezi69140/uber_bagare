@@ -32,7 +32,12 @@ class Home extends StatelessWidget {
       bottomNavigationBar: BottomAppBar(
         shadowColor: Color.fromARGB(255, 0, 0, 0),
         color: const Color.fromARGB(255, 252, 252, 252),
-        child: Text("ahhh"),
+        child: ElevatedButton(onPressed: (){} ,
+          child: Icon(
+            Icons.list,
+            size: 50,
+        ),
+      ),
       ),
       body: Center(
         child: FutureBuilder(
