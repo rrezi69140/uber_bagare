@@ -61,10 +61,19 @@ Future<List<dynamic>> getProfilePIctures() async {
 class Home extends StatelessWidget {
   Home({super.key});
 
+  late mapbox.MapboxMap mapboxMap;
+  late mapbox.PointAnnotationManager pointAnnotationManager;
+
+  _onMapCreated(mapbox.MapboxMap mapboxMap) async {
+    this.mapboxMap = mapboxMap;
+    pointAnnotationManager =
+        await mapboxMap.annotations.createPointAnnotationManager();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
@@ -79,11 +88,6 @@ class Home extends StatelessWidget {
                   Icons.map_outlined,
                   size: 50,
                 )),
-                Tab(
-                    icon: Icon(
-                  Icons.terminal_sharp,
-                  size: 50,
-                ))
               ],
             ),
             title: Center(
@@ -151,6 +155,11 @@ class Home extends StatelessWidget {
                 child: FutureBuilder<geolocator.Position>(
                   future: _determinePosition(),
                   builder: (context, snapshot) {
+                    _init() async {
+                      var position = _determinePosition();
+                      var bagarreur = getProfilePIctures();
+                    }
+
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: Text('Please wait its loading...'));
                     } else {
@@ -168,10 +177,13 @@ class Home extends StatelessWidget {
                                 position.latitude,
                               ),
                             ),
-                            zoom: 10,
-                            bearing: 0,
-                            pitch: 0);
-                        return mapbox.MapWidget(cameraOptions: camera);
+                            zoom: 15,
+                            bearing: 50,
+                            pitch: 60);
+                        return mapbox.MapWidget(
+                          cameraOptions: camera,
+                          onMapCreated: _onMapCreated,
+                        );
                       }
                     }
                   },
