@@ -11,7 +11,8 @@ class FighterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(user['name']['first']),
+        title:  Text(
+            "${user['name']['first']} ${user['name']['last']}     "),
       ),
       body: Center(
         child: Column(
@@ -38,8 +39,7 @@ class FighterPage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                            "${user['name']['first']}  ${user['name']['last']}   "), 
+
                         Text(
                             "${user['dob']['age'] / 2.toInt()} victoire  ${user['dob']['age'] % 2.toInt()} defaite  ${user['dob']['age'] / 10.toInt()} KO"),
                         Text("Accepte tout typppe de combat mm 2v2 ")
