@@ -70,7 +70,7 @@ class FighterPage extends StatelessWidget {
           child: TextButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const Home();
+                  return  Home();
                 }));
               },
               child: const Text('Go Back')),

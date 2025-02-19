@@ -1,9 +1,46 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
+import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:http/http.dart' as http;
 import 'package:uber_bagare/Pages/FighterProfile.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
+Future<geolocator.Position> _determinePosition() async {
+  bool serviceEnabled;
+  geolocator.LocationPermission permission;
+
+  // Test if location services are enabled.
+  serviceEnabled = await geolocator.Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    // Location services are not enabled don't continue
+    // accessing the position and request users of the
+    // App to enable the location services.
+    return Future.error('Location services are disabled.');
+  }
+
+  permission = await geolocator.Geolocator.checkPermission();
+  if (permission == geolocator.LocationPermission.denied) {
+    permission = await geolocator.Geolocator.requestPermission();
+    if (permission == geolocator.LocationPermission.denied) {
+      // Permissions are denied, next time you could try
+      // requesting permissions again (this is also where
+      // Android's shouldShowRequestPermissionRationale
+      // returned true. According to Android guidelines
+      // your App should show an explanatory UI now.
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  if (permission == geolocator.LocationPermission.deniedForever) {
+    // Permissions are denied forever, handle appropriately.
+    return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.');
+  }
+
+  // When we reach here, permissions are granted and we can
+  // continue accessing the position of the device.
+  return await geolocator.Geolocator.getCurrentPosition();
+}
 Future<List<dynamic>> getProfilePIctures() async {
   // Construction de l'URL a appeler
   var url = Uri.parse(
@@ -18,18 +55,20 @@ Future<List<dynamic>> getProfilePIctures() async {
     return [];
   }
 }
-
+Future<geolocator.Position> positionActuelle = _determinePosition()  ;
 class Home extends StatelessWidget {
-  const Home({super.key});
-
+  Home({super.key});
+  mapbox.CameraOptions camera = mapbox.CameraOptions(
+      //center: Point(coordinates: Position(-98.0, 39.5)),
+      zoom: 2,
+      bearing: 0,
+      pitch: 0);
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 2,
         child: Scaffold(
-
           appBar: AppBar(
-
             bottom: const TabBar(
               tabs: [
                 Tab(
@@ -103,9 +142,17 @@ class Home extends StatelessWidget {
                         }
                       }
                     }),
-              )
-            ,
-            Center(child: Text("dede"),)],
+              ),
+              Center(
+                child: mapbox.MapWidget(cameraOptions: camera),
+
+              ),
+              //Center(child: Text("${positionActuelle.longitude} km"))
+
+             
+             
+
+            ],
           ),
         ));
   }
