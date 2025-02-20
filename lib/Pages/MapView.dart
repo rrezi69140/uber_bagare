@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:provider/provider.dart';
 import 'package:uber_bagare/Pages/ListFighterView.dart';
-import 'package:uber_bagare/Pages/MapView.dart';
+
+class MapView extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => MapViewState();
+}
 
 Future<geolocator.Position> _determinePosition() async {
   bool serviceEnabled;
@@ -40,50 +46,74 @@ Future<geolocator.Position> _determinePosition() async {
   return await geolocator.Geolocator.getCurrentPosition();
 }
 
-class Home extends StatefulWidget {
-  Home({super.key});
+class PositionProvider extends ChangeNotifier {
+  geolocator.Position? position;
 
-  @override
-  State<Home> createState() => _HomeState();
+  geolocator.Position? get userPosition => position;
+
+  PositionProvider() {
+    getLocalisation();
+  }
+
+  void getLocalisation() async {
+    position = await _determinePosition();
+    notifyListeners();
+  }
 }
 
-class _HomeState extends State<Home> {
+class MapViewState extends State<MapView> {
+  @override
+  mapbox.MapboxMap? mapboxMap;
+  geolocator.Position? position;
+  List<dynamic> Users = [];
+  mapbox.CameraOptions? camera;
+
+  geolocator.Position? get userPosition => position;
+
+  _GetUser() async {
+    Users = await getProfilePIctures();
+  }
+
+  late mapbox.PointAnnotationManager pointAnnotationManager;
+
+  _onMapCreated(mapbox.MapboxMap mapboxMap) async {
+    this.mapboxMap = mapboxMap;
+    pointAnnotationManager =
+        await mapboxMap.annotations.createPointAnnotationManager();
+  }
+
   @override
   void initState() {
     super.initState();
+
+    _GetUser();
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: const TabBar(
-              tabs: [
-                Tab(
-                    icon: Icon(
-                  Icons.list,
-                  size: 50,
-                )),
-                Tab(
-                    icon: Icon(
-                  Icons.map_outlined,
-                  size: 50,
-                )),
-              ],
+    return Center(
+      child: Consumer<PositionProvider>(
+        builder: (context, userPosition, child) {
+          geolocator.Position? position = userPosition.position;
+          print(position);
+          if (position == null) {
+            return CircularProgressIndicator();
+          }
+          return mapbox.MapWidget(
+            cameraOptions: mapbox.CameraOptions(
+              center: mapbox.Point(
+                  coordinates: mapbox.Position(
+                position.longitude,
+                position.latitude,
+              )),
+              zoom: 15,
+              bearing: 50,
+              pitch: 60,
             ),
-            title: Center(
-              child: Text("Uber Bagarre"),
-            ),
-          ),
-          body: TabBarView(
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              Center(child: ListFighterView()),
-              Center(child: MapView())
-            ],
-          ),
-        ));
+            onMapCreated: _onMapCreated,
+          );
+        },
+      ),
+    );
   }
 }
