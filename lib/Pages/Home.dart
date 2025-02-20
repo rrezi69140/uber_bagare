@@ -58,10 +58,60 @@ Future<List<dynamic>> getProfilePIctures() async {
   }
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   Home({super.key});
 
-  late mapbox.MapboxMap mapboxMap;
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  mapbox.MapboxMap? mapboxMap;
+  geolocator.Position? position;
+  List<dynamic> Users = [];
+
+  mapbox.CameraOptions? camera;
+
+  _getLocalisation() async {
+    position = await _determinePosition();
+    print('position: $position');
+    _setCamera();
+    setState(() {});
+  }
+
+  _GetUser() async {
+    Users = await getProfilePIctures();
+  }
+
+  void _setCamera() {
+    print('set cam');
+    print(position);
+    if (position != null) {
+      print(position);
+      setState(() {
+        camera = mapbox.CameraOptions(
+          center: mapbox.Point(
+            coordinates: mapbox.Position(
+              position!.longitude,
+              position!.latitude,
+            ), // Utilisez la position obtenue
+          ),
+          zoom: 15,
+          bearing: 50,
+          pitch: 60,
+        );
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    _getLocalisation();
+    _GetUser();
+
+    super.initState();
+  }
+
   late mapbox.PointAnnotationManager pointAnnotationManager;
 
   _onMapCreated(mapbox.MapboxMap mapboxMap) async {
@@ -141,7 +191,11 @@ class Home extends StatelessWidget {
                                               "${bagareuer['dob']['age'] / 2.toInt()} victoire -- ${bagareuer['dob']['age'] % 2.toInt()} defaite -- ${bagareuer['dob']['age'] / 10.toInt()} KO")
                                         ],
                                       ),
-                                      Text("${bagareuer['dob']['age']} km")
+                                      Expanded(
+                                        child: Text(
+                                          "${bagareuer['dob']['age']} km",
+                                        ),
+                                      )
                                     ],
                                   ),
                                 )
@@ -152,43 +206,8 @@ class Home extends StatelessWidget {
                     }),
               ),
               Center(
-                child: FutureBuilder<geolocator.Position>(
-                  future: _determinePosition(),
-                  builder: (context, snapshot) {
-                    _init() async {
-                      var position = _determinePosition();
-                      var bagarreur = getProfilePIctures();
-                    }
-
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: Text('Please wait its loading...'));
-                    } else {
-                      //print(snapchot).data;
-                      if (snapshot.hasError) {
-                        return Center(
-                            child:
-                                Text('Error: veuiller contacter le support '));
-                      } else {
-                        var position = snapshot.data!;
-                        mapbox.CameraOptions camera = mapbox.CameraOptions(
-                            center: mapbox.Point(
-                              coordinates: mapbox.Position(
-                                position.longitude,
-                                position.latitude,
-                              ),
-                            ),
-                            zoom: 15,
-                            bearing: 50,
-                            pitch: 60);
-                        return mapbox.MapWidget(
-                          cameraOptions: camera,
-                          onMapCreated: _onMapCreated,
-                        );
-                      }
-                    }
-                  },
-                ),
-              )
+                  child: mapbox.MapWidget(
+                      cameraOptions: camera, onMapCreated: _onMapCreated))
 
               //Center(child: Text("${positionActuelle.longitude} km"))
             ],
