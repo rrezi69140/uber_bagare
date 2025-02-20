@@ -1,24 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:uber_bagare/services/fighter_service.dart';
 
-import 'FighterProfile.dart';
-
-Future<List<dynamic>> getProfilePIctures() async {
-  // Construction de l'URL a appeler
-  var url = Uri.parse(
-      "https://randomuser.me/api/?results=8"); // utilisation de l'api random user pour génerer les information  des utilisateur
-  // Appel
-  var response = await http.get(url);
-  if (response.statusCode == 200) {
-    var data = jsonDecode(response.body);
-
-    return data['results'];
-  } else {
-    return [];
-  }
-}
+import 'fighter_profile.dart';
 
 class ListFighterView extends StatefulWidget {
   @override
@@ -34,7 +17,7 @@ class ListFighterViewState extends State<ListFighterView> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getProfilePIctures(),
+        future: GetFighterProfile(),
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> fighter) {
           if (fighter.connectionState == ConnectionState.waiting) {
             return Center(child: Text('Please wait its loading...'));

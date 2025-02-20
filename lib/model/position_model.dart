@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
-import 'package:uber_bagare/Pages/ListFighterView.dart';
-import 'package:uber_bagare/Pages/MapView.dart';
 
-Future<geolocator.Position> _determinePosition() async {
+Future<geolocator.Position> determinePosition() async {
   bool serviceEnabled;
   geolocator.LocationPermission permission;
 
@@ -40,50 +38,17 @@ Future<geolocator.Position> _determinePosition() async {
   return await geolocator.Geolocator.getCurrentPosition();
 }
 
-class Home extends StatefulWidget {
-  Home({super.key});
+class PositionProvider extends ChangeNotifier {
+  geolocator.Position? position;
 
-  @override
-  State<Home> createState() => _HomeState();
-}
+  geolocator.Position? get userPosition => position;
 
-class _HomeState extends State<Home> {
-  @override
-  void initState() {
-    super.initState();
+  PositionProvider() {
+    getLocalisation();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: const TabBar(
-              tabs: [
-                Tab(
-                    icon: Icon(
-                  Icons.list,
-                  size: 50,
-                )),
-                Tab(
-                    icon: Icon(
-                  Icons.map_outlined,
-                  size: 50,
-                )),
-              ],
-            ),
-            title: Center(
-              child: Text("Uber Bagarre"),
-            ),
-          ),
-          body: TabBarView(
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              Center(child: ListFighterView()),
-              Center(child: MapView())
-            ],
-          ),
-        ));
+  void getLocalisation() async {
+    position = await determinePosition();
+    notifyListeners();
   }
 }
