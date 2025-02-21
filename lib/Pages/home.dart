@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:uber_bagare/Pages/list_fighter_view.dart';
-import 'package:uber_bagare/Pages/map_view.dart';
+import 'list_fighter_view.dart';
+import 'map_view.dart';
+
+
 
 class Home extends StatefulWidget {
   Home({super.key});

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_bagare/Pages/home.dart';
-import 'package:uber_bagare/providers/position_provider.dart';
+
+import 'Pages/home.dart';
+import 'model/position_model.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

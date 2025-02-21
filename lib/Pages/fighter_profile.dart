@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uber_bagare/Pages/home.dart';
+
+import 'home.dart';
+
 
 class FighterPage extends StatelessWidget {
   const FighterPage({Key? key, required this.user}) : super(key: key);

@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
+
+
+import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart' as GEOLOCATOR;
-import 'package:uber_bagare/model/position_model.dart' as ModelPosition;
+
+import '../model/position_model.dart' as ModelPosition;
 
 class PositionProvider extends ChangeNotifier {
   GEOLOCATOR.Position? position;

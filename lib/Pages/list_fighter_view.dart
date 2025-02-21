@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uber_bagare/services/fighter_service.dart';
 
+
+import '../services/fighter_service.dart';
 import 'fighter_profile.dart';
 
 class ListFighterView extends StatefulWidget {

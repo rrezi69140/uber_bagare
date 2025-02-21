@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapobox;
 import 'package:provider/provider.dart';
-import 'package:uber_bagare/providers/position_provider.dart';
-import 'package:uber_bagare/services/fighter_service.dart';
+import '../model/position_model.dart';
+import '../services/fighter_service.dart';
 
 class MapView extends StatefulWidget {
   const MapView({super.key});
