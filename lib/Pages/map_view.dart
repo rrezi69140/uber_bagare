@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapobox;
 import 'package:provider/provider.dart';
@@ -24,13 +25,31 @@ class MapViewState extends State<MapView> {
     users = await GetFighterProfile();
   }
 
-  late mapobox.PointAnnotationManager pointAnnotationManager;
+  SetPointerPosition(
+      geolocator.Position cursorPosition, mapobox.MapboxMap mapboxMap) async {
+    print('Position du curseur : $cursorPosition');
 
-  _onMapCreated(mapobox.MapboxMap mapboxMap) async {
-    this.mapboxMap = mapboxMap;
-    pointAnnotationManager =
-        await mapboxMap.annotations.createPointAnnotationManager();
+    // Assurez-vous que mapboxMap est non nul avant de l'utiliser
+    if (mapboxMap != null) {
+      print('Position du curseurr : $cursorPosition');
+      final ByteData bytes =
+          await rootBundle.load('assets/iconNavigationMarker.png');
+      final Uint8List imageData = bytes.buffer.asUint8List();
+      pointAnnotationManager =
+          await mapboxMap.annotations.createPointAnnotationManager();
+      mapobox.PointAnnotationOptions pointAnnotationOptions =
+          mapobox.PointAnnotationOptions(
+        geometry: mapobox.Point(
+            coordinates: mapobox.Position(
+                cursorPosition.longitude, cursorPosition.latitude)),
+        image: imageData,
+        iconSize: 10,
+      );
+      pointAnnotationManager.create(pointAnnotationOptions);
+    }
   }
+
+  late mapobox.PointAnnotationManager pointAnnotationManager;
 
   @override
   void initState() {
@@ -60,7 +79,14 @@ class MapViewState extends State<MapView> {
               bearing: 50,
               pitch: 60,
             ),
-            onMapCreated: _onMapCreated,
+            onMapCreated: (mapboxMapInstance) {
+              setState(() {
+                mapboxMap = mapboxMapInstance;
+              });
+
+              // Maintenant que mapboxMap est non nul, vous pouvez appeler SetPointerPosition
+              SetPointerPosition(position, mapboxMap!);
+            },
           );
         },
       ),

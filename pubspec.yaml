@@ -29,4 +29,5 @@ flutter:
   assets:
     - assets/images/user1.jpg
     - .env
+    - assets/images/iconNavigationMarker.png
     
