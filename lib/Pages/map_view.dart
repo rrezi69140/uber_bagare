@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapobox;
 import 'package:provider/provider.dart';
@@ -28,13 +27,13 @@ class MapViewState extends State<MapView> {
 
   SetPointerPosition(
       geolocator.Position cursorPosition, mapobox.MapboxMap mapboxMap) async {
-    print('Position du curseur : $cursorPosition');
+
 
     // Assurez-vous que mapboxMap est non nul avant de l'utiliser
     if (mapboxMap != null) {
       print('Position du curseurr : $cursorPosition');
       final ByteData bytes =
-          await rootBundle.load('assets/iconNavigationMarker.png');
+          await rootBundle.load('assets/images/iconNavigationMarker.png');
       final Uint8List imageData = bytes.buffer.asUint8List();
       pointAnnotationManager =
           await mapboxMap.annotations.createPointAnnotationManager();
@@ -44,7 +43,7 @@ class MapViewState extends State<MapView> {
             coordinates: mapobox.Position(
                 cursorPosition.longitude, cursorPosition.latitude)),
         image: imageData,
-        iconSize: 10,
+        iconSize: 0.2,
       );
       pointAnnotationManager.create(pointAnnotationOptions);
     }
