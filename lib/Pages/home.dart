@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'list_fighter_view.dart';
 import 'map_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 
 
@@ -16,6 +18,11 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
   }
+
+  SupabaseClient supabase = Supabase.instance.client;
+
+
+
 
   @override
   Widget build(BuildContext context) {

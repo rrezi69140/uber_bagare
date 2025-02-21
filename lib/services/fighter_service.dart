@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+
 Future<List<dynamic>> GetFighterProfile() async {
   // Construction de l'URL a appeler
   var url = Uri.parse(

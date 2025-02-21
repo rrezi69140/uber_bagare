@@ -1,0 +1,21 @@
+{
+  "configurations" : [
+    {
+      "id" : "D7214743-0C78-439C-BAD1-2C3778C21C20",
+      "name" : "Configuration 1",
+      "options" : {
+        "locationScenario" : {
+          "identifier" : "Paris, France",
+          "referenceType" : "built-in"
+        }
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}
