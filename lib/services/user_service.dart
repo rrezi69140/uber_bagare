@@ -7,9 +7,11 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapobox;
 import 'package:provider/provider.dart';
 import '../model/position_model.dart';
 import '../services/fighter_service.dart';
+SupabaseClient supabase = Supabase.instance.client;
+
 
 Future<void> updateUserInDatabase() async {
-  SupabaseClient supabase = Supabase.instance.client;
+
   print(Supabase.instance.client);
 
   final user = supabase.auth.currentUser;
@@ -31,4 +33,21 @@ Future<void> updateUserInDatabase() async {
       print("Erreur lors de la mise à jour de l'utilisateur : $e");
     }
   }
+}
+
+Future<List<dynamic>> GetFighterProfile() async {
+
+  try{
+    List<dynamic> users = [];
+    users = await supabase.from('users').select();
+    print(users);
+    print("recuperation des utilisateurs réussi ");
+    return users;
+  }
+  catch(e){
+    return [];
+    print("Erreur lors de la recuperation des utlisateurs ");
+  }
+
+
 }
