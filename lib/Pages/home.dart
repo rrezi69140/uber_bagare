@@ -3,6 +3,7 @@ import 'list_fighter_view.dart';
 import 'map_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uber_bagare/services/user_service.dart';
 
 
 
@@ -17,6 +18,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    updateUserInDatabase();
   }
 
   SupabaseClient supabase = Supabase.instance.client;
