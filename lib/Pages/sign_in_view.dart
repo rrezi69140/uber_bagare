@@ -1,32 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-
-
 import 'home.dart';
 
-
 // Fonction pour la connexion via Google
-
-
 // Vue de connexion
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
-  State<LoginView> createState() => LogiViewState();
-
-
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class LogiViewState extends State<LoginView>{
+class _LoginViewState extends State<LoginView> {
   @override
   void initState() {
     super.initState();
   }
-
 
   Future<void> _nativeGoogleSignIn(BuildContext context) async {
     SupabaseClient supabase = Supabase.instance.client;
@@ -59,11 +49,6 @@ class LogiViewState extends State<LoginView>{
       idToken: idToken,
     );
 
-    // if (response.error != null) {
-    //   print('Error: ${response.error!.message}');
-    //   return;
-    // }
-
     // Si l'utilisateur est authentifié, on le redirige vers la page d'accueil
     Navigator.pushReplacement(
       context,
@@ -71,20 +56,55 @@ class LogiViewState extends State<LoginView>{
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Connexion Google",style: TextStyle(fontSize: 30))),
-      body: Column(crossAxisAlignment: CrossAxisAlignment.center,spacing: 10
-        ,children: [Row(mainAxisAlignment: MainAxisAlignment.center,children: [Text('Se connecter via google :',style: TextStyle(fontSize: 20),)],),Row(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              await _nativeGoogleSignIn(context);  // Connexion via Google
-            },
-            child: Text('Connexion'),
+      appBar: AppBar(
+        title: const Text(
+          "Connexion Google",
+          style: TextStyle(fontSize: 30),
+        ),
+        backgroundColor: Colors.black, // Fond noir pour l'AppBar
+      ),
+      backgroundColor: Colors.black, // Fond noir pour toute la page
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Se connecter via Google :',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white, // Texte en blanc
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  await _nativeGoogleSignIn(context);  // Connexion via Google
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  // Fond noir pour le bouton
+               // Texte du bouton en blanc
+                  side: BorderSide(color: Colors.white, width: 1), // Bordure blanche
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Coins arrondis
+                  ),
+                ),
+                child: const Text(
+                  'Connexion',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
           ),
-        ),],)],)
-
-
+        ),
+      ),
     );
   }
 }
