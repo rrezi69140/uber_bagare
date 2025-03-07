@@ -40,7 +40,7 @@ Future<List<dynamic>> GetFighterProfile() async {
   try{
     List<dynamic> users = [];
     users = await supabase.from('users').select();
-    print(users);
+
     print("recuperation des utilisateurs réussi ");
     return users;
   }
