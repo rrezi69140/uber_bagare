@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapobox;
 import 'package:provider/provider.dart';
@@ -22,6 +21,7 @@ class MapViewState extends State<MapView> {
   late mapobox.PointAnnotationManager pointAnnotationManager;
   bool isMapReady = false;
   bool usersLoaded = false;
+  int? selectedUserIndex; // Index de l'utilisateur sélectionné dans la liste
 
   @override
   void initState() {
@@ -38,7 +38,6 @@ class MapViewState extends State<MapView> {
         usersLoaded = true;
       });
 
-      // Si la carte est prête, ajoute immédiatement les marqueurs
       if (isMapReady && mapboxMap != null) {
         await SetPointerPosition(mapboxMap!);
       }
@@ -47,7 +46,6 @@ class MapViewState extends State<MapView> {
     }
   }
 
-  // Télécharger l'image de profil et la convertir en Uint8List
   Future<Uint8List?> _downloadImage(String imageUrl) async {
     try {
       print('🔍 Vérification de l\'URL : $imageUrl');
@@ -65,7 +63,6 @@ class MapViewState extends State<MapView> {
     }
   }
 
-  // Ajouter des marqueurs avec les images des utilisateurs
   Future<void> SetPointerPosition(mapobox.MapboxMap mapboxMap) async {
     if (!isMapReady || users.isEmpty) return;
 
@@ -76,31 +73,43 @@ class MapViewState extends State<MapView> {
       for (var user in users) {
         double lat = user['latitude'] ?? 0.0;
         double lon = user['longitude'] ?? 0.0;
-        String? imageUrl = user['avatar_url']; // URL de l'image du user
+        String? imageUrl = user['avatar_url'];
+        String fullName =
+        "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}"
+            .trim()
+            .isEmpty
+            ? "Nom ou prénom non disponible"
+            : "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}"
+            .trim();
 
-        if (lat == 0.0 || lon == 0.0 || imageUrl == null) {
-          print("⚠️ Aucune URL d'image trouvée pour ${user['first_name']}");
+        if (lat == 0.0 || lon == 0.0) {
+          print("⚠️ Coordonnées invalides pour ${user['first_name']}");
           continue;
         }
 
-        print("📍 Ajout d'un marqueur pour ${user['last_name']} à ($lat, $lon)");
+        print(
+          "📍 Ajout d'un marqueur pour ${user['last_name']} à ($lat, $lon)",
+        );
 
-        Uint8List? imageData = await _downloadImage(imageUrl);
+        Uint8List? imageData =
+        imageUrl != null ? await _downloadImage(imageUrl) : null;
 
-        if (imageData != null) {
-          mapobox.PointAnnotationOptions pointAnnotationOptions =
-          mapobox.PointAnnotationOptions(
-            geometry: mapobox.Point(coordinates: mapobox.Position(lon, lat)),
-            image: imageData,
-            iconSize: 1,
-            textField: "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}".trim().isEmpty
-                ? "Nom ou prénom non disponible"
-                : "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}".trim(),
-// Ajuster la taille si nécessaire
-          );
+        mapobox.PointAnnotationOptions pointAnnotationOptions =
+        mapobox.PointAnnotationOptions(
+          geometry: mapobox.Point(coordinates: mapobox.Position(lon, lat)),
+          image: imageData,
+          iconSize: 1,
+          textField: fullName,
+          textOffset: [0, 2],
+          textAnchor: mapobox.TextAnchor.TOP,
+          textColor: Colors.black.value, // Texte en noir
+          textHaloColor: Colors.white.value, // Contour blanc
+          textHaloWidth: 2, // Largeur du contour
+        );
 
-          await pointAnnotationManager.create(pointAnnotationOptions);
-        }
+        await pointAnnotationManager.create(
+          pointAnnotationOptions,
+        );
       }
 
       print("✅ Tous les marqueurs avec photos ont été ajoutés !");
@@ -109,11 +118,23 @@ class MapViewState extends State<MapView> {
     }
   }
 
-  // Fonction pour afficher le profil de l'utilisateur
-  void showUserProfile(int userIndex) {
-    // Affiche simplement le profil dans la console pour l'instant
-    print("👤 Profil de ${users[userIndex]['first_name']} :");
-    // Tu peux ajouter ici un écran ou un dialogue pour afficher plus d'infos sur l'utilisateur.
+  void _centerMapOnUser(int index) {
+    if (index >= 0 && index < users.length && mapboxMap != null) {
+      var user = users[index];
+      double lat = user['latitude'] ?? 0.0;
+      double lon = user['longitude'] ?? 0.0;
+
+      if (lat != 0.0 && lon != 0.0) {
+        mapboxMap!.setCamera(
+          mapobox.CameraOptions(
+            center: mapobox.Point(coordinates: mapobox.Position(lon, lat)),
+            zoom: 15,
+            bearing: 50,
+            pitch: 60,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -121,16 +142,16 @@ class MapViewState extends State<MapView> {
     return Scaffold(
       body: Stack(
         children: [
-          // La carte Mapbox en arrière-plan
           Consumer<PositionProvider>(
             builder: (context, positionProvider, child) {
               geolocator.Position? position = positionProvider.position;
 
               if (position == null) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               }
 
               return mapobox.MapWidget(
+                styleUri: mapobox.MapboxStyles.DARK, // Style sombre
                 cameraOptions: mapobox.CameraOptions(
                   center: mapobox.Point(
                     coordinates: mapobox.Position(
@@ -156,37 +177,112 @@ class MapViewState extends State<MapView> {
               );
             },
           ),
-
-          // Ajouter des boutons sur la carte pour chaque utilisateur
           if (usersLoaded)
-            ...users.asMap().entries.map((entry) {
-              var user = entry.value;
-              double lat = user['latitude'] ?? 0.0;
-              double lon = user['longitude'] ?? 0.0;
-
-              print("📍 Position de ${user['first_name']} -> Latitude: $lat, Longitude: $lon");
-
-              return Positioned(
-                // Utilisation de Mapbox pour placer le bouton directement sur la carte en fonction des coordonnées
-                // Nous allons utiliser les coordonnées réelles des utilisateurs
-                child: GestureDetector(
-                  onTap: () {
-                    print("👤 Profil de ${user['first_name']} cliqué");
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FighterPage(user: user),
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800]!.withOpacity(0.8), // Fond sombre
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5), // Ombre noire
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
                       ),
-                    );
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    color: Colors.blue.withOpacity(0.8), // Zone bleue visible pour les boutons
-                    child: Icon(Icons.add_location, color: Colors.white, size: 40), // Agrandir l'icône
+                    ],
+                  ),
+                  child: Row(
+                    children: users.map((user) {
+                      int index = users.indexOf(user);
+                      bool isSelected = selectedUserIndex == index;
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (selectedUserIndex == index) {
+                                // Re-cliquer pour voir le profil
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FighterPage(user: user),
+                                  ),
+                                );
+                              } else {
+                                // Sélectionner un utilisateur
+                                selectedUserIndex = index;
+                              }
+                            });
+                            _centerMapOnUser(index);
+                          },
+                          child: Container(
+                            width: 120, // Largeur maximale pour chaque bouton
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.white.withOpacity(0.8) : null,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (user['avatar_url'] != null)
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle, // Forme ronde
+                                      border: Border.all(
+                                        color: isSelected ? Colors.blue : Colors.white, // Bordure bleue si sélectionné
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: ClipOval(
+                                      child: Image.network(
+                                        user['avatar_url'],
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (BuildContext context,
+                                            Object exception,
+                                            StackTrace? stackTrace) {
+                                          return const Icon(Icons.error);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}",
+                                  textAlign: TextAlign.center, // Centrer le texte
+                                  maxLines: 1, // Limiter à 1 ligne
+                                  overflow: TextOverflow.ellipsis, // Ajouter des points de suspension si le texte est trop long
+                                  style: TextStyle(
+                                      fontSize: 12, // Taille de texte réduite
+                                      color: isSelected ? Colors.black : Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                if (isSelected)
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      'Voir Profil',
+                                      style: TextStyle(color: Colors.blue),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
-              );
-            }).toList(),
+              ),
+            ),
         ],
       ),
     );
