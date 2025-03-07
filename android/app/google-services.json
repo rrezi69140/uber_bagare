@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "421848232454",
+    "project_id": "uber-bagarre-b7291",
+    "storage_bucket": "uber-bagarre-b7291.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421848232454:android:d855244699fc5d9b818987",
+        "android_client_info": {
+          "package_name": "com.example.uber_bagarre"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7qsdGunZV3RtL8sVlFPIk_Y1wv_Fdc6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

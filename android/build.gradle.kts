@@ -19,3 +19,20 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+buildscript {
+    dependencies {
+        classpath 'com.google.gms:google-services:4.3.10'  // Vérifie la dernière version ici : https://firebase.google.com/docs/android/setup
+    }
+}
+
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    compileSdkVersion 33  // Vérifie la version la plus récente
+
+    defaultConfig {
+        minSdkVersion 21  // Firebase Messaging requiert min 21
+        targetSdkVersion 33
+    }
+}
+

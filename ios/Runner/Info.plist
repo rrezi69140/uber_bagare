@@ -67,6 +67,10 @@
         </array>
       </dict>
     </array>
-    <!-- End of the Google Sign-in Section -->
+   <key>NSLocationWhenInUseUsageDescription</key>
+   <string>Nous avons besoin de votre localisation pour afficher la carte.</string>
+   <key>NSLocationAlwaysUsageDescription</key>
+   <string>Nous avons besoin d’un accès permanent à votre localisation.</string>
+
 </dict>
 </plist>
