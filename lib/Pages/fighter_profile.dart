@@ -2,74 +2,91 @@ import 'package:flutter/material.dart';
 
 import 'home.dart';
 
-
 class FighterPage extends StatelessWidget {
   const FighterPage({Key? key, required this.user}) : super(key: key);
   final dynamic user;
 
   @override
   Widget build(BuildContext context) {
+    // On récupère les données de l'utilisateur (combattant)
+    var firstName = user['first_name'] ?? "Nom inconnu";
+    var lastName = user['last_name'] ?? "Prénom inconnu";
+    var avatarUrl = user['avatar_url'] ?? '';
+    var victory = user['victory'] ?? 0;
+    var defeat = user['defeat'] ?? 0;
+    var ko = user['ko'] ?? 0;
+    var distance = user['latitude'] ?? 0.0;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("${user['name']['first']} ${user['name']['last']}     "),
+        title: Text("$firstName $lastName"),
       ),
       body: Center(
         child: Column(
-          spacing: 150,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Avatar et informations principales
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(avatarUrl),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "$firstName $lastName",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "$victory victoires - $defeat défaites - $ko KO",
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "Localisation: ${distance.toStringAsFixed(2)} km",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            SizedBox(height: 20),
+
+            // Compétences du combattant
             Column(
-              spacing: 15,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          NetworkImage("${user['picture']['large']}"),
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    "Compétences :",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 15,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                            "${user['dob']['age'] / 2.toInt()} victoire  ${user['dob']['age'] % 2.toInt()} defaite  ${user['dob']['age'] / 10.toInt()} KO"),
-                        Text("Accepte tout typppe de combat mm 2v2 ")
-                      ],
-                    ),
-                  ],
+                SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text("Compétence 1: Boxe", style: TextStyle(fontSize: 16)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text("Compétence 2: Judo", style: TextStyle(fontSize: 16)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text("Compétence 3: Muay Thai", style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
-            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text("Compétence : ")],
-              ),
-              Row(
-                children: [],
-              )
-            ])
           ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        shadowColor: Color.fromARGB(255, 0, 0, 0),
-        color: const Color.fromARGB(255, 252, 252, 252),
+        color: Color.fromARGB(255, 252, 252, 252),
         child: Center(
           child: TextButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Home();
-                }));
-              },
-              child: const Text('Go Back')),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Home();
+              }));
+            },
+            child: const Text('Go Back'),
+          ),
         ),
       ),
     );

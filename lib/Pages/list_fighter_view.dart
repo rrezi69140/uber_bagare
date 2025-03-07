@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-
-import '../services/fighter_service.dart';
+import '../services/user_service.dart';
 import 'fighter_profile.dart';
 
 class ListFighterView extends StatefulWidget {
@@ -11,64 +9,71 @@ class ListFighterView extends StatefulWidget {
 
 class ListFighterViewState extends State<ListFighterView> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: GetFighterProfile(),
-        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> fighter) {
-          if (fighter.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Please wait its loading...'));
-          } else {
-            if (fighter.hasError) {
-              return Center(
-                  child: Text('Error: veuiller contacter le support '));
-            } else {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 30,
-                children: [
-                  for (var bagareuer in fighter.data!)
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return FighterPage(user: bagareuer);
-                        }));
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 15,
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                "${bagareuer['picture']['medium']}"),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                  " nom : ${bagareuer['name']['first']}  ${bagareuer['name']['last']}   "),
-                              // crée des valeur fictive
-                              Text(
-                                  "${bagareuer['dob']['age'] / 2.toInt()} victoire -- ${bagareuer['dob']['age'] % 2.toInt()} defaite -- ${bagareuer['dob']['age'] / 10.toInt()} KO")
-                            ],
-                          ),
-                          Expanded(
-                            child: Text(
-                              "${bagareuer['dob']['age']} km",
+      future: GetFighterProfile(),
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: Text('Please wait, it\'s loading...'));
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: veuillez contacter le support'));
+        } else {
+          var fighters = snapshot.data ?? [];
+
+          return Scaffold(
+            appBar: AppBar(title: Text("Fighters List")),
+            body: ListView.builder(
+              itemCount: fighters.length,
+              itemBuilder: (context, index) {
+                var fighter = fighters[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return FighterPage(user: fighter);
+                        }),
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(fighter['avatar_url'] ?? ''),
+                          radius: 30,
+                        ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Nom: ${fighter['first_name']} ${fighter['last_name']}",
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                          )
-                        ],
-                      ),
-                    )
-                ],
-              );
-            }
-          }
-        });
+                            Text(
+                              "${fighter['victory'] ?? 0} victoires - "
+                                  "${fighter['defeat'] ?? 0} défaites - "
+                                  "${fighter['ko'] ?? 0} KO",
+                            ),
+                          ],
+                        ),
+                        Spacer(),
+                        Text(
+                          "${(fighter['latitude'] ?? 0).toStringAsFixed(2)} km",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      },
+    );
   }
 }
